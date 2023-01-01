@@ -23,7 +23,7 @@ class VispyCamera:
         self._dims = dims
 
         # Create 2D camera
-        self._2D_camera = PanZoomCamera(aspect=1)
+        self._2D_camera = PanZoomCamera(aspect=None)
         # flip y-axis to have correct alignment
         self._2D_camera.flip = (0, 1, 0)
         self._2D_camera.viewbox_key_event = viewbox_key_event
