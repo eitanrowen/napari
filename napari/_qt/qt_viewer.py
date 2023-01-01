@@ -1121,7 +1121,7 @@ class QtViewer(QSplitter):
                 corner_pixels_displayed=canvas_corners_world[
                     :, displayed_axes
                 ],
-                shape_threshold=self.canvas.size,
+                shape_threshold=self.canvas.size[:,:,-1],
             )
 
     def set_welcome_visible(self, visible):
