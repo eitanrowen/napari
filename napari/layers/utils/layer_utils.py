@@ -506,12 +506,35 @@ def compute_multiscale_level(
     # Scale shape by downsample factors
     scaled_shape = requested_shape / downsample_factors
 
-    # Find the highest level (lowest resolution) allowed
+    # Find the highest resolution level allowed
     locations = np.argwhere(np.all(scaled_shape > shape_threshold, axis=1))
     if len(locations) > 0:
         level = locations[-1][0]
     else:
-        level = 0
+        scale_pix_size = scaled_shape / shape_threshold
+        dim_max_scale = np.max(scale_pix_size, axis=0)
+        dims_to_expand = np.squeeze(np.argwhere(dim_max_scale < 1))  # scale by max
+        scale_pix_size[:, dims_to_expand] /= dim_max_scale[dims_to_expand]
+        locations = np.argwhere(np.all(scale_pix_size >= 1, axis=1))
+        if len(locations) > 0:
+            level = locations[-1][0]
+            warnings.warn(
+                trans._(
+                    "Dimensions {dims_to_expand} are undersampled by {factor} in level {level}",
+                    deferred=True,
+                    dims_to_expand=dims_to_expand,
+                    factor=1 / dim_max_scale[dims_to_expand],
+                    level=level,
+                )
+            )
+        else:
+            level = 0
+            warnings.warn(
+                trans._(
+                    "Defaulting to level 0",
+                    deferred=True,
+                )
+            )
     return level
 
 
