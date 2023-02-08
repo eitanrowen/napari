@@ -33,6 +33,7 @@ class Camera(EventedModel):
     # fields
     center: Tuple[float, float, float] = (0.0, 0.0, 0.0)
     zoom: float = 1.0
+    aspect: float = 1.0
     angles: Tuple[float, float, float] = (0.0, 0.0, 90.0)
     perspective: float = 0
     interactive: bool = True

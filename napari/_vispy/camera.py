@@ -115,6 +115,7 @@ class VispyCamera:
         if self.zoom == zoom:
             return
         scale = np.array(self._view.canvas.size) / zoom
+        scale[1] = scale[1] * self._camera.aspect
         if self._view.camera == self._3D_camera:
             self._view.camera.scale_factor = np.min(scale)
         else:
