@@ -65,10 +65,11 @@ class VispyAxesOverlay(VispySceneOverlay):
         if abs(np.log10(self._scale) - np.log10(scale)) < 1e-4:
             return
         self._scale = scale
-        scale = self._target_length * self._scale
+        scale_x = self._target_length * self._scale
+        scale_y = scale_x * self.viewer.camera.aspect
         # Update axes scale
         self.node.transform.reset()
-        self.node.transform.scale([scale, scale, scale, 1])
+        self.node.transform.scale([scale_x, scale_y, scale_x, 1])
 
     def reset(self):
         super().reset()

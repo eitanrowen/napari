@@ -166,6 +166,7 @@ class VispyCamera:
         with self._camera.events.center.blocker(self._on_center_change):
             self._camera.center = self.center
         with self._camera.events.zoom.blocker(self._on_zoom_change):
+            self._camera.aspect = self._view.canvas.size[0] / self._view.canvas.size[1] * self._2D_camera.rect.size[1] / self._2D_camera.rect.size[0]
             self._camera.zoom = self.zoom
         with self._camera.events.perspective.blocker(
             self._on_perspective_change
