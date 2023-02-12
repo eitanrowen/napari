@@ -5,7 +5,7 @@ from napari.components.overlays.base import CanvasOverlay
 from napari.utils.color import ColorValue
 
 
-class ScaleBarOverlay(CanvasOverlay):
+class AxesOverlay(CanvasOverlay):
     """Scale bar indicating size in world coordinates.
 
     Attributes
