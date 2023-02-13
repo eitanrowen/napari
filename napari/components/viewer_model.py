@@ -62,6 +62,7 @@ from napari.utils.mouse_bindings import MousemapProvider
 from napari.utils.progress import progress
 from napari.utils.theme import available_themes, is_theme_available
 from napari.utils.translations import trans
+from napari_plot.components.axis import Axis
 
 DEFAULT_THEME = 'dark'
 EXCLUDE_DICT = {
@@ -134,6 +135,7 @@ class ViewerModel(KeymapProvider, MousemapProvider, EventedModel):
     text_overlay: TextOverlay = Field(
         default_factory=TextOverlay, allow_mutation=False
     )
+    axis: Axis = Field(default_factory=Axis, allow_mutation=False)
     overlays: Overlays = Field(default_factory=Overlays, allow_mutation=False)
 
     help: str = ''

@@ -14,7 +14,8 @@ class VispyAxesOverlay(VispyCanvasOverlay):
         # Target axes length in canvas pixels
         self._target_length = 80
 
-        super().__init__(node=AxisWidget(), **kwargs)
+        super().__init__(node=AxisWidget(pos=(0,100)), **kwargs)
+        self.node.link_view(self.node.parent.parent)
         self.overlay.events.visible.connect(self._on_visible_change)
         self.overlay.events.colored.connect(self._on_data_change)
         # self.overlay.events.dashed.connect(self._on_data_change)
@@ -49,7 +50,7 @@ class VispyAxesOverlay(VispyCanvasOverlay):
         #     dashed=self.overlay.dashed,
         #     arrows=self.overlay.arrows,
         # )
-        self.node = AxisWidget()
+        # self.node = AxisWidget()
     #
     # def _on_labels_visible_change(self):
     #     self.node.text.visible = self.overlay.labels

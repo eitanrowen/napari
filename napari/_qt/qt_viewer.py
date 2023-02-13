@@ -71,6 +71,7 @@ from napari._vispy import (  # isort:skip
     VispyTextOverlay,
     create_vispy_layer,
 )
+from napari_plot._vispy.overlays.axis import VispyXAxisVisual, VispyYAxisVisual
 
 
 if TYPE_CHECKING:
@@ -445,6 +446,7 @@ class QtViewer(QSplitter):
 
     def _add_visuals(self) -> None:
         """Add visuals for axes, scale bar, and welcome text."""
+        self.x_axis = VispyXAxisVisual(self.viewer, parent=self.view, order=1e6 + 1)
 
         self.axes = VispyAxesOverlay(
             overlay=self.viewer.axes,
