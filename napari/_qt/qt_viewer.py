@@ -71,8 +71,26 @@ from napari._vispy import (  # isort:skip
     VispyTextOverlay,
     create_vispy_layer,
 )
+from napari._vispy.overlays.pz_axes import VispyPzAxesOverlay
 from napari_plot._vispy.overlays.axis import VispyXAxisVisual, VispyYAxisVisual
+from vispy.scene.widgets import AxisWidget
 
+
+class PzAxis(AxisWidget):
+
+    def __init__(self, **kwargs):
+        super(PzAxis, self).__init__(**kwargs)
+    #     from pyramid.pyramid import Pyramid
+    #     self.unfreeze()
+    #     self.p = Pyramid(r'C:\t\testzq')
+    # def on_resize(self, event):
+    #     self._update_axis()
+    #     data = self.axis._text.text
+    #     try:
+    #         txt = [str(self.p.ind_to_datetime(0, float(d))) for d in data]
+    #         self.axis._text.text = txt
+    #     except ValueError:
+    #         print(data)
 
 if TYPE_CHECKING:
     from npe2.manifest.contributions import WriterContribution
@@ -263,8 +281,11 @@ class QtViewer(QSplitter):
         self.viewer.layers.events.removed.connect(self._remove_layer)
 
         self.setAcceptDrops(True)
+        self.grid = self.canvas.central_widget.add_grid(margin=10)
+        self.grid.spacing = 0
 
-        self.view = self.canvas.central_widget.add_view(border_width=0)
+        #self.view = self.canvas.central_widget.add_view(border_width=0)
+        self.view = self.grid.add_view(row=0, col=1, border_color='white')
         self.camera = VispyCamera(
             self.view, self.viewer.camera, self.viewer.dims
         )
@@ -446,13 +467,38 @@ class QtViewer(QSplitter):
 
     def _add_visuals(self) -> None:
         """Add visuals for axes, scale bar, and welcome text."""
-        self.x_axis = VispyXAxisVisual(self.viewer, parent=self.view, order=1e6 + 1)
+        # self.x_axis = VispyXAxisVisual(self.viewer, parent=self.view, order=1e6 + 1)
 
         self.axes = VispyAxesOverlay(
             overlay=self.viewer.axes,
             viewer=self.viewer,
             parent=self.view.scene,
         )
+        from vispy.scene.visuals import GridLines
+        self.pz_axes_x = PzAxis(orientation='bottom',
+                         axis_label='Time',
+                         axis_font_size=12,
+                         axis_label_margin=50,
+                         tick_label_margin=5)
+        self.pz_axes_y = PzAxis(orientation='left',
+                                    axis_label='Pos',
+                                    axis_font_size=12,
+                                    axis_label_margin=50,
+                                    tick_label_margin=5)
+        self.pz_axes_x.height_max = 50
+        self.pz_axes_y.width_max = 150
+        self.grid.add_widget(self.pz_axes_x, row=1, col=1)
+        self.grid.add_widget(self.pz_axes_y, row=0, col=0)
+
+        self.pz_axes_y.link_view(self.view)
+        self.pz_axes_x.link_view(self.view)
+
+
+        g = GridLines(parent=self.view.scene)
+        g.order = 1e6
+        g.opacity = 0.5
+        self.viewer.camera.events.zoom.connect(self.pz_axes_x.on_resize)
+        self.viewer.camera.events.center.connect(self.pz_axes_x.on_resize)
         self.scale_bar = VispyScaleBarOverlay(
             overlay=self.viewer.scale_bar,
             viewer=self.viewer,
