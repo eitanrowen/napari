@@ -78,8 +78,24 @@ from vispy.scene.widgets import AxisWidget
 
 class PzAxis(AxisWidget):
 
-    def __init__(self, **kwargs):
+    def __init__(self, viewer,  **kwargs):
         super(PzAxis, self).__init__(**kwargs)
+        from vispy.visuals.axis import Ticker
+        def pz_update_ticker():
+            major_tick_fractions, minor_tick_fractions, tick_labels = \
+                self.axis.ticker._get_tick_frac_labels()
+
+            from pyramid.pyramid import Pyramid
+
+            p = Pyramid(r'C:\t\testzq')
+            tick_labels = [str(p.ind_to_datetime(0, float(d))) for d in tick_labels]
+
+            tick_pos, tick_label_pos, axis_label_pos, anchors = \
+                self.axis.ticker._get_tick_positions(major_tick_fractions,
+                                         minor_tick_fractions)
+            return tick_pos, tick_labels, tick_label_pos, anchors, axis_label_pos
+
+        self.axis.ticker.get_update = pz_update_ticker
     #     from pyramid.pyramid import Pyramid
     #     self.unfreeze()
     #     self.p = Pyramid(r'C:\t\testzq')
@@ -475,12 +491,14 @@ class QtViewer(QSplitter):
             parent=self.view.scene,
         )
         from vispy.scene.visuals import GridLines
-        self.pz_axes_x = PzAxis(orientation='bottom',
+        self.pz_axes_x = PzAxis(viewer=self.viewer,
+                                orientation='bottom',
                          axis_label='Time',
                          axis_font_size=12,
                          axis_label_margin=50,
                          tick_label_margin=5)
-        self.pz_axes_y = PzAxis(orientation='left',
+        self.pz_axes_y = PzAxis(viewer=self.viewer,
+                                orientation='left',
                                     axis_label='Pos',
                                     axis_font_size=12,
                                     axis_label_margin=50,
