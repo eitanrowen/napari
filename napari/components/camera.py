@@ -32,11 +32,13 @@ class Camera(EventedModel):
 
     # fields
     center: Tuple[float, float, float] = (0.0, 0.0, 0.0)
-    zoom: float = 1.0
-    aspect: float = 1.0
+    zoom: float = 1.0   # zoom_x - left it as a float for other users
     angles: Tuple[float, float, float] = (0.0, 0.0, 90.0)
     perspective: float = 0
     interactive: bool = True
+    # Additional fields: Eitan
+    aspect: float = 1  # zoom_y / zoom_x
+    unlock_isotropic: bool = True
 
     # validators
     @validator('center', 'angles', pre=True)

@@ -17,9 +17,9 @@ VIEW_ACTIONS: List[Action] = []
 for cmd, viewer_attr, sub_attr in (
     (CommandId.TOGGLE_VIEWER_AXES, 'axes', 'visible'),
     (CommandId.TOGGLE_VIEWER_AXES_COLORED, 'axes', 'colored'),
-    # (CommandId.TOGGLE_VIEWER_AXES_LABELS, 'axes', 'labels'),
-    # (CommandId.TOGGLE_VIEWER_AXES_DASHED, 'axes', 'dashed'),
-    # (CommandId.TOGGLE_VIEWER_AXES_ARROWS, 'axes', 'arrows'),
+    (CommandId.TOGGLE_VIEWER_AXES_LABELS, 'axes', 'labels'),
+    (CommandId.TOGGLE_VIEWER_AXES_DASHED, 'axes', 'dashed'),
+    (CommandId.TOGGLE_VIEWER_AXES_ARROWS, 'axes', 'arrows'),
     (CommandId.TOGGLE_VIEWER_SCALE_BAR, 'scale_bar', 'visible'),
     (CommandId.TOGGLE_VIEWER_SCALE_BAR_COLORED, 'scale_bar', 'colored'),
     (CommandId.TOGGLE_VIEWER_SCALE_BAR_TICKS, 'scale_bar', 'ticks'),

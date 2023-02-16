@@ -23,7 +23,12 @@ class VispyCamera:
         self._dims = dims
 
         # Create 2D camera
-        self._2D_camera = PanZoomCamera(aspect=None)
+        # aspect=None for non_isotropic zoom - Eitan
+        if self._camera.unlock_isotropic:
+            aspect = None
+        else:
+            aspect = 1
+        self._2D_camera = PanZoomCamera(aspect=aspect)
         # flip y-axis to have correct alignment
         self._2D_camera.flip = (0, 1, 0)
         self._2D_camera.viewbox_key_event = viewbox_key_event
@@ -40,6 +45,10 @@ class VispyCamera:
         self._camera.events.zoom.connect(self._on_zoom_change)
         self._camera.events.angles.connect(self._on_angles_change)
         self._camera.events.perspective.connect(self._on_perspective_change)
+
+        # added for changing camera aspect ratio and lock_isotropic - Eitan
+        self._camera.events.unlock_isotropic.connect(self._on_unlock_isotropic_change)
+        self._camera.events.aspect.connect(self._on_zoom_change)
 
         self._on_ndisplay_change()
 
@@ -107,7 +116,7 @@ class VispyCamera:
                 [self._view.camera.rect.width, self._view.camera.rect.height]
             )
             scale[np.isclose(scale, 0)] = 1  # fix for #2875
-        zoom = np.min(canvas_size / scale)
+        zoom = canvas_size[0] / scale[0] # Eitan: zoom_x
         return zoom
 
     @zoom.setter
@@ -115,7 +124,7 @@ class VispyCamera:
         if self.zoom == zoom:
             return
         scale = np.array(self._view.canvas.size) / zoom
-        scale[1] = scale[1] * self._camera.aspect
+        scale[1] = scale[1] / self._camera.aspect
         if self._view.camera == self._3D_camera:
             self._view.camera.scale_factor = np.min(scale)
         else:
@@ -150,6 +159,13 @@ class VispyCamera:
     def _on_zoom_change(self):
         self.zoom = self._camera.zoom
 
+
+    def _on_unlock_isotropic_change(self):
+        if self._camera.unlock_isotropic:
+            self._2D_camera.aspect = 1
+        else:
+            self._2D_camera.aspect = None
+
     def _on_perspective_change(self):
         self.perspective = self._camera.perspective
 
@@ -166,8 +182,11 @@ class VispyCamera:
         with self._camera.events.center.blocker(self._on_center_change):
             self._camera.center = self.center
         with self._camera.events.zoom.blocker(self._on_zoom_change):
-            self._camera.aspect = self._view.canvas.size[0] / self._view.canvas.size[1] * self._2D_camera.rect.size[1] / self._2D_camera.rect.size[0]
-            self._camera.zoom = self.zoom
+            with self._camera.events.aspect.blocker(self._on_zoom_change):
+                zoom_y = self._view.canvas.size[1] / self._2D_camera.rect.size[1]
+                zoom_x = self._view.canvas.size[0] / self._2D_camera.rect.size[0]
+                self._camera.aspect = zoom_y / zoom_x
+                self._camera.zoom = zoom_x
         with self._camera.events.perspective.blocker(
             self._on_perspective_change
         ):
