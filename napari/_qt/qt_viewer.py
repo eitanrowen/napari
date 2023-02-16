@@ -78,24 +78,25 @@ from vispy.scene.widgets import AxisWidget
 
 class PzAxis(AxisWidget):
 
-    def __init__(self, viewer,  **kwargs):
+    def __init__(self, viewer, format_time, **kwargs):
         super(PzAxis, self).__init__(**kwargs)
         from vispy.visuals.axis import Ticker
-        def pz_update_ticker():
-            major_tick_fractions, minor_tick_fractions, tick_labels = \
-                self.axis.ticker._get_tick_frac_labels()
+        if format_time:
+            def pz_update_ticker():
+                major_tick_fractions, minor_tick_fractions, tick_labels = \
+                    self.axis.ticker._get_tick_frac_labels()
 
-            from pyramid.pyramid import Pyramid
+                from pyramid.pyramid import Pyramid
 
-            p = Pyramid(r'C:\t\testzq')
-            tick_labels = [str(p.ind_to_datetime(0, float(d))) for d in tick_labels]
+                p = Pyramid(r'G:\Shared drives\PowerBI\pyramids\2023_span')
+                tick_labels = [str(p.ind_to_datetime(0, float(d))) for d in tick_labels]
 
-            tick_pos, tick_label_pos, axis_label_pos, anchors = \
-                self.axis.ticker._get_tick_positions(major_tick_fractions,
-                                         minor_tick_fractions)
-            return tick_pos, tick_labels, tick_label_pos, anchors, axis_label_pos
+                tick_pos, tick_label_pos, axis_label_pos, anchors = \
+                    self.axis.ticker._get_tick_positions(major_tick_fractions,
+                                             minor_tick_fractions)
+                return tick_pos, tick_labels, tick_label_pos, anchors, axis_label_pos
 
-        self.axis.ticker.get_update = pz_update_ticker
+            self.axis.ticker.get_update = pz_update_ticker
     #     from pyramid.pyramid import Pyramid
     #     self.unfreeze()
     #     self.p = Pyramid(r'C:\t\testzq')
@@ -491,13 +492,13 @@ class QtViewer(QSplitter):
             parent=self.view.scene,
         )
         from vispy.scene.visuals import GridLines
-        self.pz_axes_x = PzAxis(viewer=self.viewer,
+        self.pz_axes_x = PzAxis(viewer=self.viewer, format_time=False,
                                 orientation='bottom',
                          axis_label='Time',
                          axis_font_size=12,
                          axis_label_margin=50,
                          tick_label_margin=5)
-        self.pz_axes_y = PzAxis(viewer=self.viewer,
+        self.pz_axes_y = PzAxis(viewer=self.viewer, format_time=False,
                                 orientation='left',
                                     axis_label='Pos',
                                     axis_font_size=12,

@@ -8,12 +8,12 @@ from napari.utils.status_messages import status_format
 import numpy as np
 
 # url = "https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.4/idr0062A/6001240.zarr"
-url = r'C:\t\testzq'
+# url = r'C:\t\testzq'
+url = r'G:\Shared drives\PowerBI\pyramids\2023_span'
 
 p = Pyramid(url)
 dask_data = p.reduced_pyramid()
-dask_data[0]=da.broadcast_to(dask_data[0], (dask_data[1].shape[0], *dask_data[0].shape[1:]))
-dask_data = dask_data[:3]
+dask_data[0] = da.broadcast_to(dask_data[0], (dask_data[1].shape[0], *dask_data[0].shape[1:]))
 # We can view this in napari
 # NB: image axes are CZYX: split channels by C axis=0
 viewer = napari.Viewer()
