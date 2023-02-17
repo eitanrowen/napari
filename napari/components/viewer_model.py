@@ -311,10 +311,15 @@ class ViewerModel(KeymapProvider, MousemapProvider, EventedModel):
         if np.max(size) == 0:
             self.camera.zoom = 0.95 * self._canvas_size[0]
         else:
-            scale = np.array(size[-2:])
+            scale = np.array(size[-2:])             # napari notation: (y,x)
             scale[np.isclose(scale, 0)] = 1
-            self.camera.aspect = scale[0]/scale[1]
-            self.camera.zoom = 0.95 * self._canvas_size[0] / scale[-1]
+            self.camera.zoom = 0.95 * self._canvas_size[1] / scale[1]
+            zoom_y = 0.95 * self._canvas_size[0] / scale[0]
+            self.camera.aspect = zoom_y / self.camera.zoom
+            # debug prints: _canvas_size is (y,x)
+            # print(f'zeroing zoom: {self.camera.zoom, zoom_y}')
+            # print(f'data{size}')
+            # print(f'canvas size:{self._canvas_size}')
         self.camera.angles = (0, 0, 90)
 
         # Emit a reset view event, which is no longer used internally, but

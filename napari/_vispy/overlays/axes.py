@@ -10,6 +10,7 @@ class VispyAxesOverlay(VispySceneOverlay):
 
     def __init__(self, **kwargs):
         self._scale = 1
+        self._aspect = 1
 
         # Target axes length in canvas pixels
         self._target_length = 80
@@ -23,6 +24,7 @@ class VispyAxesOverlay(VispySceneOverlay):
 
         self.viewer.events.theme.connect(self._on_data_change)
         self.viewer.camera.events.zoom.connect(self._on_zoom_change)
+        self.viewer.camera.events.aspect.connect(self._on_zoom_change)
         self.viewer.dims.events.order.connect(self._on_data_change)
         self.viewer.dims.events.range.connect(self._on_data_change)
         self.viewer.dims.events.ndisplay.connect(self._on_data_change)
@@ -49,6 +51,7 @@ class VispyAxesOverlay(VispySceneOverlay):
             dashed=self.overlay.dashed,
             arrows=self.overlay.arrows,
         )
+        self._on_zoom_change()
 
     def _on_labels_visible_change(self):
         self.node.text.visible = self.overlay.labels
@@ -60,11 +63,13 @@ class VispyAxesOverlay(VispySceneOverlay):
 
     def _on_zoom_change(self):
         scale = 1 / self.viewer.camera.zoom
-
+        aspect = self.viewer.camera.aspect
         # If scale has not changed, do not redraw
-        if abs(np.log10(self._scale) - np.log10(scale)) < 1e-4:
+        if abs(np.log10(self._scale) - np.log10(scale)) +\
+            abs(np.log10(self._aspect) - np.log10(aspect)) < 1e-4:
             return
         self._scale = scale
+        self._aspect = aspect
         scale_x = self._target_length * self._scale
         scale_y = scale_x / self.viewer.camera.aspect
         # Update axes scale

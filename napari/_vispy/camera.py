@@ -133,6 +133,31 @@ class VispyCamera:
             self._view.camera.rect = tuple(corner) + tuple(scale)
 
     @property
+    def aspect(self):
+        """float: Scale from canvas pixels to world pixels."""
+        if not self._camera.unlock_isotropic:
+            return 1
+
+        canvas_size = np.array(self._view.canvas.size)
+        scale = np.array([self._view.camera.rect.width, self._view.camera.rect.height])
+        scale[np.isclose(scale, 0)] = 1  # fix for #2875
+        zoom_x = canvas_size[0] / scale[0]
+        zoom_y = canvas_size[1] / scale[1]
+        return zoom_y / zoom_x
+
+    @aspect.setter
+    def aspect(self, aspect):
+        if self.aspect == aspect:
+            return
+        scale = np.array(self._view.canvas.size) / [self.zoom, aspect * self.zoom]
+        if self._view.camera == self._3D_camera:
+            self._view.camera.scale_factor = np.min(scale)
+        else:
+            # Set view rectangle, as left, right, width, height
+            corner = np.subtract(self._view.camera.center[:2], scale / 2)
+            self._view.camera.rect = tuple(corner) + tuple(scale)
+
+    @property
     def perspective(self):
         """Field of view of camera (only visible in 3D mode)."""
         return self._3D_camera.fov
@@ -158,7 +183,7 @@ class VispyCamera:
 
     def _on_zoom_change(self):
         self.zoom = self._camera.zoom
-
+        self.aspect = self._camera.aspect
 
     def _on_unlock_isotropic_change(self):
         if self._camera.unlock_isotropic:
@@ -187,6 +212,10 @@ class VispyCamera:
                 zoom_x = self._view.canvas.size[0] / self._2D_camera.rect.size[0]
                 self._camera.aspect = zoom_y / zoom_x
                 self._camera.zoom = zoom_x
+                # debug prints:
+                # print(f'zoom x, y: {zoom_x,zoom_y}')
+                # print(f' data size: {self._2D_camera.rect.size}')
+                # print(f'canvas size:{self._view.canvas.size}')
         with self._camera.events.perspective.blocker(
             self._on_perspective_change
         ):
