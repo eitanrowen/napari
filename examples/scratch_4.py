@@ -6,7 +6,8 @@ from pyramid.pyramid import Pyramid
 from typing import Optional, Tuple, List
 from napari.utils.status_messages import status_format
 import numpy as np
-
+from napari_pz_pyramid._vispy.gridlines import PzGridLines
+from napari_pz_pyramid._vispy.graph_axis import PzAxis
 # url = "https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.4/idr0062A/6001240.zarr"
 url = r'C:\t\testzq'
 #url = r'G:\Shared drives\PowerBI\pyramids\2023_span'
@@ -18,7 +19,32 @@ dask_data[0] = da.broadcast_to(dask_data[0], (dask_data[1].shape[0], *dask_data[
 # We can view this in napari
 # NB: image axes are CZYX: split channels by C axis=0
 viewer = napari.Viewer()
+g = PzGridLines(viewer.window.qt_viewer.view)
+
 viewer.add_image([d for d in dask_data])#dask_data[0,:,:,:])
+
+pz_axes_x = PzAxis(pyramid=p, viewer=viewer, format_time=True,
+                        orientation='bottom',
+                        axis_label='Time',
+                        axis_font_size=12,
+                        axis_label_margin=50,
+                        tick_label_margin=5)
+pz_axes_y = PzAxis(pyramid=p, viewer=viewer, format_time=False,
+                        orientation='left',
+                        axis_label='Pos',
+                        axis_font_size=12,
+                        axis_label_margin=50,
+                        tick_label_margin=5)
+pz_axes_x.height_max = 50
+pz_axes_y.width_max = 150
+viewer.window.qt_viewer.grid.add_widget(pz_axes_x, row=1, col=1)
+viewer.window.qt_viewer.grid.add_widget(pz_axes_y, row=0, col=0)
+
+pz_axes_y.link_view(viewer.window.qt_viewer.view)
+pz_axes_x.link_view(viewer.window.qt_viewer.view)
+
+viewer.camera.events.zoom.connect(pz_axes_x.on_resize)
+viewer.camera.events.center.connect(pz_axes_x.on_resize)
 def generate_layer_coords_status(position, value):
     if position is not None:
         full_coord = list(map(str, np.round(position).astype(int)))

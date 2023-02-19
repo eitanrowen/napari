@@ -116,7 +116,8 @@ class VispyCamera:
                 [self._view.camera.rect.width, self._view.camera.rect.height]
             )
             scale[np.isclose(scale, 0)] = 1  # fix for #2875
-        zoom = canvas_size[0] / scale[0] # Eitan: zoom_x
+            scale = scale[0] # return number as 3D camera does
+        zoom = canvas_size[0] / scale # Eitan: zoom_x
         return zoom
 
     @zoom.setter
@@ -136,6 +137,8 @@ class VispyCamera:
     def aspect(self):
         """float: Scale from canvas pixels to world pixels."""
         if not self._camera.unlock_isotropic:
+            return 1
+        if self._view.camera == self._3D_camera:
             return 1
 
         canvas_size = np.array(self._view.canvas.size)
