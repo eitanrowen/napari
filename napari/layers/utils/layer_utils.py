@@ -518,15 +518,15 @@ def compute_multiscale_level(
         locations = np.argwhere(np.all(scale_pix_size >= 1, axis=1))
         if len(locations) > 0:
             level = locations[-1][0]
-            warnings.warn(
-                trans._(
-                    "Dimensions {dims_to_expand} are undersampled by {factor} in level {level}",
-                    deferred=True,
-                    dims_to_expand=dims_to_expand,
-                    factor=1 / dim_max_scale[dims_to_expand],
-                    level=level,
-                )
-            )
+            # warnings.warn(
+            #     trans._(
+            #         "Dimensions {dims_to_expand} are undersampled by {factor} in level {level}",
+            #         deferred=True,
+            #         dims_to_expand=dims_to_expand,
+            #         factor=1 / dim_max_scale[dims_to_expand],
+            #         level=level,
+            #     )
+            # )
         else:
             level = 0
             warnings.warn(
