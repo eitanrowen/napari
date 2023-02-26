@@ -970,7 +970,7 @@ class QtViewer(QSplitter):
         """
         # Find corners of canvas in world coordinates
         top_left = self._map_canvas2world([0, 0])
-        bottom_right = self._map_canvas2world(self.canvas.size)
+        bottom_right = self._map_canvas2world(self.view.size)
         return np.array([top_left, bottom_right])
 
     def on_resize(self, event):
@@ -979,7 +979,8 @@ class QtViewer(QSplitter):
         event : vispy.util.event.Event
             The vispy event that triggered this method.
         """
-        self.viewer._canvas_size = tuple(self.canvas.size[::-1])
+        # changed canvas to view since we use grid
+        self.viewer._canvas_size = tuple(self.view.size[::-1])
 
     def _process_mouse_event(self, mouse_callbacks, event):
         """Add properties to the mouse event before passing the event to the
@@ -1019,7 +1020,7 @@ class QtViewer(QSplitter):
 
         # Update the cursor position
         self.viewer.cursor._view_direction = event.view_direction
-        self.viewer.cursor.position = self._map_canvas2world(list(event.pos))
+        self.viewer.cursor.position = self._map_canvas2world(list(event.pos - self.view.pos))
 
         # Add the cursor position to the event
         event.position = self.viewer.cursor.position
@@ -1123,7 +1124,7 @@ class QtViewer(QSplitter):
                 corner_pixels_displayed=canvas_corners_world[
                     :, displayed_axes
                 ],
-                shape_threshold=self.canvas.size[::-1],
+                shape_threshold=self.view.size[::-1],
             )
 
     def set_welcome_visible(self, visible):
