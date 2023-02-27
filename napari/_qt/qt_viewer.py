@@ -980,7 +980,7 @@ class QtViewer(QSplitter):
             The vispy event that triggered this method.
         """
         # changed canvas to view since we use grid
-        self.viewer._canvas_size = tuple(self.view.size[::-1])
+        self.viewer._canvas_size = tuple(self.canvas.size[::-1])
 
     def _process_mouse_event(self, mouse_callbacks, event):
         """Add properties to the mouse event before passing the event to the
@@ -1124,7 +1124,7 @@ class QtViewer(QSplitter):
                 corner_pixels_displayed=canvas_corners_world[
                     :, displayed_axes
                 ],
-                shape_threshold=self.view.size[::-1],
+                shape_threshold=self.canvas.size[::-1],
             )
 
     def set_welcome_visible(self, visible):
